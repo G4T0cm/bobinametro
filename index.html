@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Qué miembro de Bobina eres?</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple-deep:   #0d0010;
+    --purple-dark:   #1a0030;
+    --purple-mid:    #2d0060;
+    --purple-main:   #6a00c8;
+    --purple-bright: #a855f7;
+    --purple-neon:   #d100ff;
+    --pink-glow:     #ff00cc;
+    --cyan-accent:   #00e5ff;
+    --text-primary:  #f0e6ff;
+    --text-muted:    #9d7fc7;
+    --card-bg:       rgba(42, 0, 80, 0.55);
+    --border-glow:   rgba(168, 85, 247, 0.35);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--purple-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── ANIMATED BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(106,0,200,.45) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(209,0,255,.3) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 70% at 50% 50%, rgba(0,229,255,.1) 0%, transparent 70%),
+      linear-gradient(160deg, #0d0010 0%, #1a0030 40%, #0a001a 100%);
+    animation: bgPulse 8s ease-in-out infinite alternate;
+  }
+  @keyframes bgPulse {
+    0%   { opacity: .8; }
+    100% { opacity: 1; filter: hue-rotate(20deg); }
+  }
+
+  /* ── FLOATING PARTICLES ── */
+  .particles { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: float linear infinite;
+    opacity: 0;
+  }
+  @keyframes float {
+    0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: .6; }
+    100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+  }
+
+  /* ── LAYOUT ── */
+  .wrapper {
+    position: relative; z-index: 2;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown .8s ease both;
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .header .eyebrow {
+    font-family: 'Nunito', sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .35em;
+    text-transform: uppercase;
+    color: var(--purple-neon);
+    margin-bottom: 12px;
+    text-shadow: 0 0 20px var(--purple-neon);
+  }
+
+  .header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #fff 0%, var(--purple-bright) 50%, var(--pink-glow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(168,85,247,.5));
+  }
+
+  .header .subtitle {
+    margin-top: 14px;
+    font-size: .95rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    margin-bottom: 36px;
+    animation: fadeDown .8s .2s ease both;
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .progress-track {
+    height: 6px;
+    background: rgba(255,255,255,.07);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--purple-main), var(--purple-neon), var(--pink-glow));
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 12px var(--purple-neon);
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-glow);
+    border-radius: 20px;
+    padding: 36px 32px;
+    backdrop-filter: blur(20px);
+    box-shadow:
+      0 0 0 1px rgba(168,85,247,.1),
+      0 8px 40px rgba(0,0,0,.6),
+      inset 0 1px 0 rgba(255,255,255,.08);
+    animation: cardIn .6s .1s ease both;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px) scale(.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ── QUESTION ── */
+  .question-number {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--purple-bright);
+    margin-bottom: 12px;
+  }
+  .question-text {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  /* ── ANSWERS GRID ── */
+  .answers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 520px) {
+    .answers { grid-template-columns: 1fr; }
+    .card { padding: 24px 18px; }
+  }
+
+  .answer-btn {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(168,85,247,.25);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-family: 'Nunito', sans-serif;
+    font-size: .9rem;
+    font-weight: 600;
+    padding: 14px 18px;
+    cursor: pointer;
+    text-align: left;
+    transition: all .25s cubic-bezier(.4,0,.2,1);
+    line-height: 1.35;
+  }
+  .answer-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--purple-main), var(--pink-glow));
+    opacity: 0;
+    transition: opacity .25s;
+    border-radius: inherit;
+  }
+  .answer-btn span { position: relative; z-index: 1; }
+  .answer-btn:hover {
+    border-color: var(--purple-bright);
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 20px rgba(168,85,247,.35),
+      inset 0 0 20px rgba(168,85,247,.1);
+  }
+  .answer-btn:hover::before { opacity: .2; }
+  .answer-btn:active { transform: scale(.97) translateY(0); }
+  .answer-btn.selected::before { opacity: .4; }
+  .answer-btn.selected {
+    border-color: var(--purple-neon);
+    box-shadow: 0 0 20px var(--purple-neon), 0 0 40px rgba(209,0,255,.3);
+  }
+
+  /* ── RESULT ── */
+  .result-wrap {
+    text-align: center;
+    animation: resultIn .8s ease both;
+  }
+  @keyframes resultIn {
+    from { opacity: 0; transform: scale(.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .result-emoji {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px var(--purple-neon));
+    animation: emojiPop .6s .3s cubic-bezier(.3,1.5,.5,1) both;
+  }
+  @keyframes emojiPop {
+    from { transform: scale(0) rotate(-20deg); }
+    to   { transform: scale(1) rotate(0deg); }
+  }
+
+  .result-name {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 6vw, 3rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, var(--purple-bright) 45%, var(--pink-glow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 25px rgba(168,85,247,.6));
+    margin-bottom: 16px;
+  }
+
+  .result-desc {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    max-width: 420px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+  }
+
+  .result-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 36px;
+  }
+  .score-pill {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(168,85,247,.2);
+    border-radius: 99px;
+    padding: 5px 14px;
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: .05em;
+  }
+  .score-pill.top {
+    background: linear-gradient(135deg, rgba(106,0,200,.4), rgba(209,0,255,.3));
+    border-color: var(--purple-neon);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(209,0,255,.4);
+  }
+
+  .restart-btn {
+    background: linear-gradient(135deg, var(--purple-main), var(--purple-neon));
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 14px 40px;
+    cursor: pointer;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 30px rgba(209,0,255,.45);
+    transition: all .25s;
+  }
+  .restart-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 40px rgba(209,0,255,.6);
+  }
+  .restart-btn:active { transform: scale(.97); }
+
+  /* ── DECORATIVE ── */
+  .glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(80px);
+    z-index: 0;
+  }
+  .orb-1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(106,0,200,.5), transparent 70%);
+    top: -100px; left: -100px;
+    animation: orbFloat 12s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(209,0,255,.35), transparent 70%);
+    bottom: 50px; right: -80px;
+    animation: orbFloat 9s ease-in-out infinite reverse;
+  }
+  @keyframes orbFloat {
+    0%,100% { transform: translate(0,0); }
+    50%      { transform: translate(30px, -40px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Glow orbs -->
+<div class="glow-orb orb-1"></div>
+<div class="glow-orb orb-2"></div>
+
+<!-- Particles container -->
+<div class="particles" id="particles"></div>
+
+<div class="wrapper">
+  <header class="header">
+    <p class="eyebrow">✦ Server de Bobina ✦</p>
+    <h1>¿Qué miembro eres?</h1>
+    <p class="subtitle">Responde con honestidad y descubre tu alter ego</p>
+  </header>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-info">
+      <span id="progressLabel">Pregunta 1 de 15</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="card" id="card">
+    <div id="quiz"></div>
+    <div id="result"></div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  { q:"Entras al Discord, ¿qué haces?", a:[
+    {text:"Saludo y veo qué pasa", type:"rana"},
+    {text:"Reviso todo lo que ha pasado", type:"gato"},
+    {text:"Paso sin decir nada", type:"warlock"},
+    {text:"Escribo algo sin pensar", type:"warxos"},
+    {text:"Busco gente para jugar", type:"wiky"},
+    {text:"Voy a ver a quién molestar", type:"lykos"},
+    {text:"Miro si alguien necesita algo", type:"merk"},
+    {text:"Solo entro si hay algo importante", type:"hectory"}
+  ]},
+  { q:"¿Hay 2 bobinas peleandose en general, que haces?", a:[
+    {text:"Pregunto que pasa", type:"gato"},
+    {text:"Me la pela que discutan", type:"wiky"},
+    {text:"Ni me entero", type:"warxos"},
+    {text:"Me meto a discutir", type:"lykos"},
+    {text:"Ni he mirado el general", type:"warlock"},
+    {text:"Prefiero evitarlo", type:"rana"},
+    {text:"Intento remediarlo", type:"merk"},
+    {text:"Intervengo solo si hace falta", type:"hectory"}
+  ]},
+  { q:"Cuanto escribes en general", a:[
+    {text:"Constantemente", type:"gato"},
+    {text:"Cuando veo que alguien habla", type:"wiky"},
+    {text:"Cuando me mencionan aparezco", type:"warxos"},
+    {text:"Solo algunas horas al dia", type:"lykos"},
+    {text:"No hablo nunca", type:"warlock"},
+    {text:"Yo aparezco cuando puedo", type:"rana"},
+    {text:"Siempre presente", type:"merk"},
+    {text:"Solo cuando se me necesita", type:"hectory"}
+  ]},
+  { q:"En un canal de voz tú...", a:[
+    {text:"Entro si me interesa", type:"rana"},
+    {text:"Entro y palante", type:"wiky"},
+    {text:"Hablo sin parar", type:"warxos"},
+    {text:"Entro si estan jugando a algo que juego", type:"lykos"},
+    {text:"Rara vez entro", type:"warlock"},
+    {text:"Me paso a saludar, pero me voy al rato", type:"gato"},
+    {text:"Siempre estoy dispuesto", type:"merk"},
+    {text:"Solo entro si hace falta", type:"hectory"}
+  ]},
+  { q:"Tu forma de escribir es...", a:[
+    {text:"Normal y calmada", type:"rana"},
+    {text:"Con memes incluidos", type:"gato"},
+    {text:"Muy frecuente", type:"warxos"},
+    {text:"Provocadora", type:"lykos"},
+    {text:"Escasa pero importante", type:"warlock"},
+    {text:"Conversacional", type:"wiky"},
+    {text:"Para ayudar o organizar", type:"merk"},
+    {text:"Formal o medida", type:"hectory"}
+  ]},
+  { q:"¿Qué te representa más?", a:[
+    {text:"Información", type:"gato"},
+    {text:"Diversión", type:"wiky"},
+    {text:"Costumbre", type:"warxos"},
+    {text:"Competencia", type:"lykos"},
+    {text:"Control", type:"warlock"},
+    {text:"Tranquilidad", type:"rana"},
+    {text:"Compromiso", type:"merk"},
+    {text:"Responsabilidad", type:"hectory"}
+  ]},
+  { q:"Si alguien te molesta...", a:[
+    {text:"Paso del tema", type:"rana"},
+    {text:"Lo ignoro pero observo", type:"gato"},
+    {text:"Ni me entero", type:"warxos"},
+    {text:"Respondo fuerte", type:"lykos"},
+    {text:"Actúo sin que lo note", type:"warlock"},
+    {text:"Me río", type:"wiky"},
+    {text:"Intento arreglarlo", type:"merk"},
+    {text:"Evalúo antes de actuar", type:"hectory"}
+  ]},
+  { q:"¿Por qué usas el server?", a:[
+    {text:"Porque es mi casa", type:"gato"},
+    {text:"Porque mis amigos estan dentro", type:"wiky"},
+    {text:"Porque no tengo otro lugar", type:"warxos"},
+    {text:"Para jugar", type:"lykos"},
+    {text:"Para gestionarlo", type:"warlock"},
+    {text:"Para pasar el rato", type:"rana"},
+    {text:"Porque me gusta", type:"merk"},
+    {text:"Para mantener orden", type:"hectory"}
+  ]},
+  { q:"Tu presencia es...", a:[
+    {text:"Constante", type:"gato"},
+    {text:"Activa y visible", type:"wiky"},
+    {text:"Caótica", type:"warxos"},
+    {text:"Intensa", type:"lykos"},
+    {text:"Invisible", type:"warlock"},
+    {text:"Ligera", type:"rana"},
+    {text:"Firme", type:"merk"},
+    {text:"Imponente", type:"hectory"}
+  ]},
+  { q:"Si desapareces unos días...", a:[
+    {text:"Nadie se sorprende", type:"rana"},
+    {text:"Sigues al día igualmente", type:"gato"},
+    {text:"No cambia mucho", type:"warxos"},
+    {text:"Se nota el silencio", type:"lykos"},
+    {text:"Todo sigue igual", type:"warlock"},
+    {text:"Te escriben para jugar", type:"wiky"},
+    {text:"Te echan en falta", type:"merk"},
+    {text:"Te llaman si pasa algo", type:"hectory"}
+  ]},
+  { q:"¿Cómo reaccionas a cambios en el server?", a:[
+    {text:"Veo que cambios han sucedido", type:"gato"},
+    {text:"Busco al culpable", type:"wiky"},
+    {text:"Ni me fijo", type:"warxos"},
+    {text:"Critico pero no hago nada", type:"lykos"},
+    {text:"Los hago yo", type:"warlock"},
+    {text:"Me da igual", type:"rana"},
+    {text:"Observo los cambios", type:"merk"},
+    {text:"Evalúo si son correctos", type:"hectory"}
+  ]},
+  { q:"Tu rol ideal es...", a:[
+    {text:"Arriba del todo", type:"gato"},
+    {text:"Con poder pero que no me molesten", type:"wiky"},
+    {text:"Presente", type:"warxos"},
+    {text:"Me da igual mientras mantenga el que tengo", type:"lykos"},
+    {text:"Ni me importa", type:"warlock"},
+    {text:"Casual", type:"rana"},
+    {text:"Apoyo", type:"merk"},
+    {text:"Autoridad", type:"hectory"}
+  ]},
+  { q:"En un evento tú...", a:[
+    {text:"Es posible que lo hayas organizado tu", type:"gato"},
+    {text:"Participas si te interesa", type:"wiky"},
+    {text:"Te unes solo para ver que pasa", type:"warxos"},
+    {text:"Compites fuerte si te interesa", type:"lykos"},
+    {text:"Ni apareces", type:"warlock"},
+    {text:"Te enteras tarde", type:"rana"},
+    {text:"Si van mis amigos voy", type:"merk"},
+    {text:"Supervisas", type:"hectory"}
+  ]},
+  { q:"Tu energía en Discord es...", a:[
+    {text:"Controladora", type:"gato"},
+    {text:"Activa", type:"wiky"},
+    {text:"Random", type:"warxos"},
+    {text:"Agresiva", type:"lykos"},
+    {text:"Inexistente", type:"warlock"},
+    {text:"Relajada", type:"rana"},
+    {text:"Dedicada", type:"merk"},
+    {text:"Seria", type:"hectory"}
+  ]},
+  { q:"Frase que te define:", a:[
+    {text:"Quiero saberlo todo", type:"gato"},
+    {text:"Que esta pasando aqui", type:"wiky"},
+    {text:"xd", type:"warxos"},
+    {text:"te gano fácil", type:"lykos"},
+    {text:"...", type:"warlock"},
+    {text:"Mando un meme de vez en cuando", type:"rana"},
+    {text:"Holaaaaaa :D", type:"merk"},
+    {text:"esto no es correcto", type:"hectory"}
+  ]}
+];
+
+const resultData = {
+  gato:    { emoji:"🐱", name:"Gato",    desc:"G4 Peceras, julen mandarina, el G4s." },
+  wiky:    { emoji:"🎮", name:"Wiky",    desc:"El pezzzz pijaaaaaaa." },
+  warxos:  { emoji:"😶", name:"Warxos",  desc:"No vas a creer cuando te cuentne la huelga de autobuses de vigo." },
+  lykos:   { emoji:"⚔️", name:"Lykos",   desc:"Hola bo dia." },
+  warlock: { emoji:"🧙", name:"Warlock", desc:"Es hora de cargarse bobina una vez mas." },
+  rana:    { emoji:"🐸", name:"Rana",    desc:"Croack." },
+  merk:    { emoji:"🔥", name:"Merk",    desc:"Alabada sea la Bobina y el Pez Pija." },
+  hectory: { emoji:"⚖️", name:"Hectory", desc:"Pues vas a juicio." }
+};
+
+let current = 0;
+let scores = { gato:0, wiky:0, warxos:0, lykos:0, warlock:0, rana:0, merk:0, hectory:0 };
+
+// ── Particles
+function spawnParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['#a855f7','#d100ff','#ff00cc','#6a00c8','#00e5ff'];
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 1;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      box-shadow: 0 0 ${size*3}px currentColor;
+      animation-duration:${Math.random()*15+8}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    container.appendChild(p);
+  }
+}
+spawnParticles();
+
+// ── Progress
+function updateProgress() {
+  const pct = Math.round((current / questions.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Pregunta ${current + 1} de ${questions.length}`;
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+// ── Show question
+function showQuestion() {
+  updateProgress();
+  const q = questions[current];
+  const card = document.getElementById('card');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'cardIn .4s ease both';
+
+  let html = `<div class="question-number">Pregunta ${current + 1} / ${questions.length}</div>`;
+  html += `<div class="question-text">${q.q}</div>`;
+  html += `<div class="answers">`;
+  q.a.forEach(ans => {
+    html += `<button class="answer-btn" onclick="answer('${ans.type}')"><span>${ans.text}</span></button>`;
+  });
+  html += `</div>`;
+  document.getElementById('quiz').innerHTML = html;
+  document.getElementById('result').innerHTML = '';
+}
+
+// ── Answer
+function answer(type) {
+  scores[type]++;
+  current++;
+  if (current < questions.length) {
+    showQuestion();
+  } else {
+    showResult();
+  }
+}
+
+// ── Result
+function showResult() {
+  document.getElementById('progressWrap').style.display = 'none';
+  const max = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+  const r = resultData[max];
+
+  // Sort scores for display
+  const sorted = Object.entries(scores).sort((a,b) => b[1] - a[1]);
+
+  let pillsHtml = sorted.map(([k, v]) => {
+    const isTop = k === max;
+    return `<div class="score-pill ${isTop?'top':''}">${resultData[k].emoji} ${resultData[k].name} — ${v}</div>`;
+  }).join('');
+
+  document.getElementById('quiz').innerHTML = '';
+  document.getElementById('result').innerHTML = `
+    <div class="result-wrap">
+      <span class="result-emoji">${r.emoji}</span>
+      <div class="result-name">${r.name}</div>
+      <p class="result-desc">${r.desc}</p>
+      <div class="result-bar">${pillsHtml}</div>
+      <button class="restart-btn" onclick="restart()">Volver a empezar</button>
+    </div>
+  `;
+}
+
+// ── Restart
+function restart() {
+  current = 0;
+  scores = { gato:0, wiky:0, warxos:0, lykos:0, warlock:0, rana:0, merk:0, hectory:0 };
+  document.getElementById('progressWrap').style.display = 'block';
+  showQuestion();
+}
+
+showQuestion();
+</script>
+</body>
+</html>
